@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "blagbl"
+dynamic = ["version"]
+description = "CLI tool for fetching and checking BLAG block list information."
+readme = "README.md"
+license = ""
+requires-python = ">=3.7"
+authors = [
+    { name = "Wes Hardaker", email = "opensource@hardakers.net" },
+]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "requests",
+  "rich",
+  "pyfsdb",
+  "dateparser",
+]
+
+# [project.package_data]
+# "traffic_taffy.iana" = ['tables.msgpak']
+
+[project.scripts]
+script-name = "module.path:main"
+
+[project.urls]
+Homepage = "https://github.com/hardaker/blagbl"
+
+[tool.hatch.version]
+path = "PYTHONPATH/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/PYTHONPATH",
+]
+
+[tool.ruff]
+# long lines, unsorted imports, too many args, don't type selfs, or return types
+ignore = ["E501", "I001", "PLR0913", "ANN101", "ANN204",
+# allow boolean typed position arguments/defaults
+"FBT001", "FBT002",
+# don't require issues,
+"TD003",
+# trailing commas is often wrong because of black formatting
+"COM812",
+# generic typing (list vs List) doesn't work until python 3.8
+"UP006",
+# Logging statement uses f-string
+"G004",
+# complaining about simple if/else
+"SIM108",
+# allow blind exceptions
+"BLE001",
+# allow for loop variable overrides
+"PLW2901",
+# disable "no blank line before class"
+"D203",
+# disable multi-line-summary-second-line
+"D213",
+]
+fixable = ["ALL"]  # gulp
+select = ["ALL"]
+# select = ["A", "ARG", "C4", "COM", "EM", "E", "ANN"]
