@@ -12,6 +12,8 @@ from collections import defaultdict
 from logging import info, error, warning
 from pathlib import Path
 
+__VERSION__ = "0.1"
+
 CACHE_VERSION: int = 1
 DEFAULT_STORE: Path = Path(os.environ["HOME"]).joinpath(".local/share/blag")
 
