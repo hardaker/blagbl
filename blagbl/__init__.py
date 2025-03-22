@@ -71,7 +71,7 @@ class BlagBL():
 
         return database
 
-    def fetch_blag(self, date_path: str = None):
+    def fetch(self, date_path: str = None):
         if not date_path:
             yesterday = dateparser.parse("yesterday")
             date_path = yesterday.strftime("%Y/%m/%Y-%m-%d.zip")
