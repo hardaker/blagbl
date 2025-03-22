@@ -27,7 +27,7 @@ dependencies = [
 # "traffic_taffy.iana" = ['tables.msgpak']
 
 [project.scripts]
-script-name = "module.path:main"
+blagbl = "blagbl.tools.main:main"
 
 [project.urls]
 Homepage = "https://github.com/hardaker/blagbl"
