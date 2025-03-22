@@ -1,59 +1,52 @@
-#!/usr/bin/python3
-
 """Fetches and accesses contents of the BLAG blocklist set from USC/ISI."""
 
-import argparse
+from __future__ import annotations
 import sys
 import os
-import time
-import blagbl
 import requests
-import pyfsdb
-import logging
-import ipaddress
 import dateparser
 import zipfile
 import csv
+import msgpack
 from collections import defaultdict
-from logging import info, error
+from logging import info, error, warning
 from pathlib import Path
 
-COLUMN_NAMES = ["address", "ip_numeric", "ASN", "owner", "country", "ip_range"]
-ASN_COLUMN_NAMES = ["ASN", "owner", "country", "ip_range"]
-
-default_store = Path(os.environ["HOME"]).joinpath(".local/share/blag")
+CACHE_VERSION: int = 1
+DEFAULT_STORE: Path = Path(os.environ["HOME"]).joinpath(".local/share/blag")
 
 
 class BlagBL:
+    """A class for loading and parsing BLAG block list data."""
+
     def __init__(self, database: str = None, exit_on_error: bool = True):
-        "Create an instance of the BLAG Block List manager."
+        """Create an instance of the BLAG Block List manager."""
         self._database = self.get_blag_path(database, exit_on_error)
         self.blag_list = None
         self.map_list = None
         self._ips = None
 
     @property
-    def ips(self):
+    def ips(self) -> defaultdict:
         """The extracted IP map from the BLAG archive."""
         return self._ips
 
     @ips.setter
-    def ips(self, newval):
+    def ips(self, newval: defaultdict) -> None:
         self._ips = newval
 
     @property
-    def database(self):
+    def database(self) -> str:
         """The storage location of the cached BLAG database."""
         return self._database
 
     @database.setter
-    def database(self, newval):
+    def database(self, newval: str) -> None:
         self._database = newval
 
-    def get_blag_path(self, suggested_database: str, exit_on_error: bool = True):
-        "Find the blag storage data if it exists."
-
-        database: str = default_store.joinpath("blag.zip")
+    def get_blag_path(self, suggested_database: str, exit_on_error: bool = True) -> str:
+        """Find the blag storage data if it exists."""
+        database: str = DEFAULT_STORE.joinpath("blag.zip")
 
         if suggested_database and Path(suggested_database).is_file():
             database = suggested_database
@@ -73,14 +66,15 @@ class BlagBL:
 
         return database
 
-    def fetch(self, date_path: str = None):
+    def fetch(self, date_path: str = None) -> None:
+        """Fetch the BLAG list from the blag web server."""
         if not date_path:
             yesterday = dateparser.parse("yesterday")
             date_path = yesterday.strftime("%Y/%m/%Y-%m-%d.zip")
 
         request_url = "https://steel.isi.edu/projects/BLAG/data/" + date_path
 
-        info(f"starting download")
+        info("starting download")
 
         if not self.database.parent().is_dir():
             self.database.mkdir(parents=True)
@@ -97,7 +91,7 @@ class BlagBL:
 
         info(f"saved data to {self.database}")
 
-    def extract_blag_files(self):
+    def extract_blag_files(self) -> tuple:
         """Extract the individual files from within the BLAG zip archive."""
         zfile = zipfile.ZipFile(self.database)
         items = zfile.infolist()
@@ -113,9 +107,13 @@ class BlagBL:
         self.map_list = map_contents.decode("utf-8")
         return (self.blag_list, self.map_list)
 
-    def parse_blag_contents(self):
+    def parse_blag_contents(self, save_cache: bool = True) -> defaultdict:
         """Extract the BLAG contents and map the results into a single dict."""
         if not self.blag_list or not self.map_list:
+            # try to load from the cache first:
+            if self.load_cache():
+                return self.ips
+
             self.extract_blag_files()
 
         map_csv = csv.reader(self.map_list.split())
@@ -130,8 +128,32 @@ class BlagBL:
             ips[ip] = [blag_map[x] for x in row]
 
         self.ips = ips
+        if save_cache:
+            self.save_cache()
         return ips
 
+    def save_cache(self, location: str = None) -> None:
+        """Save the current data to a msgpack cache file for faster loading."""
+        if not location:
+            location = str(self.database) + ".msgpack"
+        with Path.open(location, "wb") as cache_file:
+            msgpack.dump({"version": CACHE_VERSION, "ips": self.ips}, cache_file)
 
-if __name__ == "__main__":
-    main()
+    def load_cache(self, location: Path = None) -> defaultdict:
+        """Load the cached data from disk."""
+        if not location:
+            location = Path(str(self.database) + ".msgpack")
+
+        if not location.is_file():
+            return None
+
+        with location.open("rb") as cache_file:
+            cache_info = msgpack.load(cache_file)
+
+            if cache_info["version"] != CACHE_VERSION:
+                warning("warning: cache version number differs -- things may break")
+
+            self.ips = defaultdict(list)
+            self.ips.update(cache_info["ips"])
+
+        return self.ips

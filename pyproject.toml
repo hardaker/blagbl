@@ -21,6 +21,7 @@ dependencies = [
   "rich",
   "pyfsdb",
   "dateparser",
+  "msgpack",
 ]
 
 # [project.package_data]
@@ -65,6 +66,12 @@ ignore = ["E501", "I001", "PLR0913", "ANN101", "ANN204",
 "D213",
 # allow asserts
 "S101",
+# allow Optional
+"RUF013",
+# ignore requests timeout "should"
+"S113",
+# allow magic values
+"PLR2004",
 ]
 fixable = ["ALL"]  # gulp
 select = ["ALL"]
