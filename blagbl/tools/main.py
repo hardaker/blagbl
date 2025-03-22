@@ -3,7 +3,6 @@
 from __future__ import annotations
 from argparse import ArgumentDefaultsHelpFormatter, Namespace
 import argparse
-import sys
 import os
 import logging
 from pathlib import Path
@@ -44,70 +43,15 @@ def parse_args() -> Namespace:
     )
 
     parser.add_argument(
+        "--info", action="store_true", help="Display information about the dataset."
+    )
+
+    parser.add_argument(
         "-f",
         "--blag-database",
         type=str,
         default=default_store,
         help="The blag database file to use",
-    )
-
-    parser.add_argument(
-        "-a",
-        "--search-by-asn",
-        action="store_true",
-        help="Instead of searching by IP address, search by an ASN number instead and return all records for that ASN number",
-    )
-
-    parser.add_argument(
-        "-A",
-        "--asn-limit",
-        type=int,
-        default=0,
-        help="Search by ASN, but limit the results to this number -- implies -a",
-    )
-
-    parser.add_argument(
-        "-o",
-        "--output-file",
-        default=sys.stdout,
-        type=argparse.FileType("w"),
-        help="Output the results to this file",
-    )
-
-    parser.add_argument(
-        "-F",
-        "--output-fsdb",
-        action="store_true",
-        help="Output FSDB (tab-separated) formatted data",
-    )
-
-    parser.add_argument(
-        "-T",
-        "--output-pcap-filter",
-        action="store_true",
-        help="Output the results as a libpcap / tcpdump filter expression",
-    )
-
-    parser.add_argument(
-        "-I",
-        "--input-fsdb",
-        type=argparse.FileType("r"),
-        help="Read an input FSDB and add columns to it; implies -F as well",
-    )
-
-    parser.add_argument(
-        "-k",
-        "--key",
-        default="key",
-        type=str,
-        help="The input key of the FSDB input file that contains the ip address to analyze",
-    )
-
-    parser.add_argument(
-        "-C",
-        "--cache-database",
-        action="store_true",
-        help="After loading the blag file, cache it in a msgpack file for faster loading next time.",
     )
 
     parser.add_argument(
@@ -122,9 +66,6 @@ def parse_args() -> Namespace:
     )
 
     args = parser.parse_args()
-
-    if args.asn_limit > 0:
-        args.search_by_asn = True
 
     log_level = args.log_level.upper()
 
@@ -163,10 +104,15 @@ def main() -> None:
 
     if args.fetch:
         bl.fetch()
-        sys.exit()
+        return
 
     # read the zip file
     bl.parse_blag_contents()
+
+    if args.info:
+        print(f"{'Data from:':<20} {bl.save_date}")
+        print(f"{'IP Count:':<20} {len(bl.ips)}")
+        return
 
     for ip in args.addresses:
         print(f"{ip:<40} {', '.join(bl.ips[ip])}")
