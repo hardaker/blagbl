@@ -63,6 +63,8 @@ ignore = ["E501", "I001", "PLR0913", "ANN101", "ANN204",
 "D203",
 # disable multi-line-summary-second-line
 "D213",
+# allow asserts
+"S101",
 ]
 fixable = ["ALL"]  # gulp
 select = ["ALL"]
