@@ -1,7 +1,7 @@
 """Fetches and accesses contents of the BLAG blocklist set from USC/ISI."""
 
 from __future__ import annotations
-from argparse import  ArgumentDefaultsHelpFormatter, Namespace
+from argparse import ArgumentDefaultsHelpFormatter, Namespace
 import argparse
 import sys
 import os
@@ -23,6 +23,7 @@ except Exception:
 help_handler = ArgumentDefaultsHelpFormatter
 try:
     from rich_argparse import RichHelpFormatter
+
     help_handler = RichHelpFormatter
 except Exception:
     debug("install rich_argparse for prettier help")
@@ -133,19 +134,23 @@ def parse_args() -> Namespace:
 
     # see if we're rich
     try:
-        handlers.append(RichHandler(rich_tracebacks=True,
-                                    tracebacks_show_locals=True,
-                                    console=Console(stderr=True,
-                                                    theme=Theme({"logging.level.success": "green"}))))
+        handlers.append(
+            RichHandler(
+                rich_tracebacks=True,
+                tracebacks_show_locals=True,
+                console=Console(
+                    stderr=True, theme=Theme({"logging.level.success": "green"})
+                ),
+            )
+        )
         datefmt = " "
         messagefmt = "%(message)s"
     except Exception:
         debug("failed to install RichHandler")
 
-    logging.basicConfig(level=log_level,
-                        format=messagefmt,
-                        datefmt=datefmt,
-                        handlers=handlers)
+    logging.basicConfig(
+        level=log_level, format=messagefmt, datefmt=datefmt, handlers=handlers
+    )
 
     return args
 

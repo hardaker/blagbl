@@ -23,7 +23,8 @@ ASN_COLUMN_NAMES = ["ASN", "owner", "country", "ip_range"]
 
 default_store = Path(os.environ["HOME"]).joinpath(".local/share/blag")
 
-class BlagBL():
+
+class BlagBL:
     def __init__(self, database: str = None, exit_on_error: bool = True):
         "Create an instance of the BLAG Block List manager."
         self._database = self.get_blag_path(database, exit_on_error)
@@ -49,7 +50,6 @@ class BlagBL():
     def database(self, newval):
         self._database = newval
 
-
     def get_blag_path(self, suggested_database: str, exit_on_error: bool = True):
         "Find the blag storage data if it exists."
 
@@ -65,7 +65,9 @@ class BlagBL():
         elif exit_on_error:
             error("Cannot find the blag storage directory.")
             error("Please specify a location with -d.")
-            error("Run with --fetch to use the default and download a copy using this tool.")
+            error(
+                "Run with --fetch to use the default and download a copy using this tool."
+            )
             error(f"Default storage location: {database}")
             sys.exit(1)
 
@@ -101,21 +103,21 @@ class BlagBL():
         items = zfile.infolist()
         file_names = {"blag_list": items[1].filename, "map_list": items[2].filename}
 
-        with zfile.open(file_names['blag_list']) as blag_handle:
+        with zfile.open(file_names["blag_list"]) as blag_handle:
             blag_contents = blag_handle.read()
 
-        with zfile.open(file_names['map_list']) as map_handle:
+        with zfile.open(file_names["map_list"]) as map_handle:
             map_contents = map_handle.read()
 
-        self.blag_list = blag_contents.decode('utf-8')
-        self.map_list = map_contents.decode('utf-8')
+        self.blag_list = blag_contents.decode("utf-8")
+        self.map_list = map_contents.decode("utf-8")
         return (self.blag_list, self.map_list)
 
     def parse_blag_contents(self):
         """Extract the BLAG contents and map the results into a single dict."""
         if not self.blag_list or not self.map_list:
             self.extract_blag_files()
-        
+
         map_csv = csv.reader(self.map_list.split())
         blag_map = {}
         for row in map_csv:
@@ -130,7 +132,6 @@ class BlagBL():
         self.ips = ips
         return ips
 
-    
 
 if __name__ == "__main__":
     main()
