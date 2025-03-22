@@ -26,6 +26,7 @@ class BlagBL:
         self._database = self.get_blag_path(database, exit_on_error)
         self.blag_list = None
         self.map_list = None
+        self._save_date = None
         self._ips = None
 
     @property
@@ -45,6 +46,15 @@ class BlagBL:
     @database.setter
     def database(self, newval: str) -> None:
         self._database = newval
+
+    @property
+    def save_date(self) -> str:
+        """The date the blocklist is from."""
+        return self._save_date
+
+    @save_date.setter
+    def save_date(self, newval: str) -> None:
+        self._save_date = newval
 
     def get_blag_path(self, suggested_database: str, exit_on_error: bool = True) -> str:
         """Find the blag storage data if it exists."""
@@ -68,11 +78,12 @@ class BlagBL:
 
         return database
 
-    def fetch(self, date_path: str = None) -> None:
+    def fetch(self, date: str = None) -> None:
         """Fetch the BLAG list from the blag web server."""
-        if not date_path:
-            yesterday = dateparser.parse("yesterday")
-            date_path = yesterday.strftime("%Y/%m/%Y-%m-%d.zip")
+        if not date:
+            date = dateparser.parse("yesterday")
+        date_path = date.strftime("%Y/%m/%Y-%m-%d.zip")
+        self.save_date = date.strftime("%Y-%m-%d")
 
         request_url = "https://steel.isi.edu/projects/BLAG/data/" + date_path
 
@@ -139,7 +150,10 @@ class BlagBL:
         if not location:
             location = str(self.database) + ".msgpack"
         with Path.open(location, "wb") as cache_file:
-            msgpack.dump({"version": CACHE_VERSION, "ips": self.ips}, cache_file)
+            msgpack.dump(
+                {"version": CACHE_VERSION, "ips": self.ips, "date": self.save_date},
+                cache_file,
+            )
 
     def load_cache(self, location: Path = None) -> defaultdict:
         """Load the cached data from disk."""
@@ -157,5 +171,6 @@ class BlagBL:
 
             self.ips = defaultdict(list)
             self.ips.update(cache_info["ips"])
+            self.save_date = cache_info.get("date", "unknown")
 
         return self.ips
