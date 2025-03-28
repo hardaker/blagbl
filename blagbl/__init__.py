@@ -102,6 +102,7 @@ class BlagBL:
                 for chunk in request.iter_content(chunk_size=4096 * 16):
                     storage.write(chunk)
 
+        self.parse_blag_contents()  # parses and saves the cached version
         info(f"saved data to {self.database}")
 
     def extract_blag_files(self) -> tuple:
