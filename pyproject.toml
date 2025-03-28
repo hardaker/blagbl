@@ -34,11 +34,11 @@ blagbl = "blagbl.tools.main:main"
 Homepage = "https://github.com/hardaker/blagbl"
 
 [tool.hatch.version]
-path = "PYTHONPATH/__init__.py"
+path = "blagbl/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/PYTHONPATH",
+    "/blagbl",
 ]
 
 [tool.ruff]
