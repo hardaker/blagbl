@@ -89,7 +89,7 @@ class BlagBL:
 
         info("starting download")
 
-        if not self.database.parent().is_dir():
+        if not self.database.parent.is_dir():
             self.database.mkdir(parents=True)
 
         # fetch the contents to our storage location
