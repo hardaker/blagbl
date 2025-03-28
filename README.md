@@ -4,6 +4,14 @@ This package is a BLAG block list lookup module and command line tool.
 See the [BLAG webpage](https://steel.isi.edu/projects/BLAG) for
 details on the BLAG aggregated blocklist.
 
+# Installation
+
+Install using `pip` or any of the other module management tools:
+
+``` sh
+$ pip install blagbl
+```
+
 # CLI Usage
 
 Fetch the most recent dataset:
