@@ -8,7 +8,7 @@ package: testit packageforce
 
 packageforce:
 	rm -rf dist
-	hatch build
+	uv build
 
 publish:
 	hatch publish -u __token__
