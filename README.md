@@ -27,6 +27,14 @@ $ blagbl 112.207.220.102
 112.207.220.102                          cruzit_web_attacks
 ```
 
+Display information about the current database:
+
+``` sh
+$ blagbl --info
+Data from:           None
+IP Count:            1072961
+```
+
 # Module Usage
 
 ``` python
