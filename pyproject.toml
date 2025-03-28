@@ -7,7 +7,7 @@ name = "blagbl"
 dynamic = ["version"]
 description = "CLI tool for fetching and checking BLAG block list information."
 readme = "README.md"
-license = ""
+license = {file = "LICENSE"}
 requires-python = ">=3.7"
 authors = [
     { name = "Wes Hardaker", email = "opensource@hardakers.net" },
