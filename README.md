@@ -31,7 +31,7 @@ Display information about the current database:
 
 ``` sh
 $ blagbl --info
-Data from:           None
+Data from:           2025-03-27
 IP Count:            1072961
 ```
 
